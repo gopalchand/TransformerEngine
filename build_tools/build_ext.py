@@ -11,6 +11,7 @@ import sys
 import sysconfig
 import copy
 import time
+import shutil
 
 from pathlib import Path
 from subprocess import CalledProcessError
@@ -75,8 +76,24 @@ class CMakeExtension(setuptools.Extension):
 
         # Check whether parallel build is restricted
         max_jobs = get_max_jobs_for_parallel_build()
-        if found_ninja():
-            configure_command.append("-GNinja")
+
+        is_windows = os.name == "nt"
+        if not is_windows:
+            if found_ninja():
+                configure_command.append("-GNinja")
+        else:
+            cmake_path = shutil.which("cmake")
+            print(cmake_path)
+            if cmake_path and "Microsoft Visual Studio\\2022" in cmake_path:
+                print("CMake is running from MSVC/Visual Studio 2022.")
+                configure_command.append("-GVisual Studio 17 2022")
+            elif cmake_path and "Microsoft Visual Studio\\2019" in cmake_path:
+                print("CMake is running from MSVC/Visual Studio 2019.")
+                configure_command.append("-GVisual Studio 16 2019")
+            elif cmake_path and "Microsoft Visual Studio\\2017" in cmake_path:
+                print("CMake is running from MSVC/Visual Studio 2017.")
+                configure_command.append("-GVisual Studio 17 2022")
+
         build_command.append("--parallel")
         if max_jobs > 0:
             build_command.append(str(max_jobs))

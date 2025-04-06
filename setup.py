@@ -101,8 +101,12 @@ def setup_requirements() -> Tuple[List[str], List[str], List[str]]:
     # Requirements that may be installed outside of Python
     if not found_cmake():
         setup_reqs.append("cmake>=3.21")
-    if not found_ninja():
-        setup_reqs.append("ninja")
+
+    is_windows = os.name == "nt"
+    if not is_windows:
+        if not found_ninja():
+            setup_reqs.append("ninja")
+
     if not found_pybind11():
         setup_reqs.append("pybind11")
 
