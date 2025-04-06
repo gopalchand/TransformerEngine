@@ -20,8 +20,16 @@ if (CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 
 # Hide non-necessary symbols in shared object.
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtransformer_engine.version")
-set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtransformer_engine.version")
+string(TOLOWER "${CMAKE_COMMAND}" cmake_path_lower)
+if(cmake_path_lower MATCHES "microsoft visual studio")
+    message(STATUS "CMake is running from MSVC Visual Studio")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS}")
+else()
+    message(STATUS "CMake is not running from a known Visual Studio path")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtransformer_engine.version")
+    set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} -Wl,--version-script=${CMAKE_CURRENT_SOURCE_DIR}/libtransformer_engine.version")
+endif()
 
 # Transformer Engine library
 project(transformer_engine LANGUAGES CUDA CXX)
